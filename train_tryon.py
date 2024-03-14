@@ -1417,7 +1417,7 @@ class BaseOptions():
         self.parser.add_argument('--output_nc', type=int, default=3, help='# of output image channels')
 
         # for setting inputs
-        self.parser.add_argument('--dataroot', type=str, default='/kaggle/input/gp-vton-dataset/VITON-HD')
+        self.parser.add_argument('--dataroot', type=str, default='/kaggle/input/gp-vton-dataset/VITON-HD/VITON-HD')
         self.parser.add_argument('--resize_or_crop', type=str, default='none',
                                  help='scaling and cropping of images at load time [resize_and_crop|crop|scale_width|scale_width_and_crop]')
         self.parser.add_argument('--serial_batches', action='store_true',
@@ -1448,7 +1448,7 @@ class BaseOptions():
                                  help='number of epochs that we only train the outmost local enhancer')
         self.parser.add_argument('--tv_weight', type=float, default=0.1, help='weight for TV loss')
 
-        self.parser.add_argument('--image_pairs_txt', type=str, default='/kaggle/input/gp-vton-dataset/VITON-HD/test_pairs_unpaired_1018.txt')
+        self.parser.add_argument('--image_pairs_txt', type=str, default='test_pairs_unpaired_1018.txt')
 
         self.initialized = True
 
