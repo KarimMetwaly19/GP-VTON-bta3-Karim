@@ -221,15 +221,15 @@ class ResUnetPlusPlus(nn.Module):
 
         self.aspp_out = ASPP(filters[1], filters[0])
 
-        self.output_layer = nn.Sequential(nn.Conv2d(filters[0], 1, 1), nn.Sigmoid()) # //the real one
+      #  self.output_layer = nn.Sequential(nn.Conv2d(filters[0], 1, 1), nn.Sigmoid()) # //the real one
         #self.output_layer=nn.Conv2d(filters[0], 1, 1)
        # self.output_layer = nn.Conv2d(filters[0], 3, kernel_size=1)  # Assuming 3 channels for RGB image
 
 
-        # self.output_layer = nn.Sequential(
-        #     nn.Conv2d(filters[0], 3, 1),  # in,out,filtersize
-        #     nn.Identity(),  # Linear activation (identity function)
-        # )
+        self.output_layer = nn.Sequential(
+            nn.Conv2d(filters[0], 3, 1),  # in,out,filtersize
+            nn.Identity(),  # Linear activation (identity function)
+        )
 
     def forward(self, x):
         x1 = self.input_layer(x) + self.input_skip(x)
