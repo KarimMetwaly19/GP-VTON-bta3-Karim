@@ -180,7 +180,7 @@ class AttentionBlock(nn.Module):
 #EL ResUnet++ nafso
 #ResUnet++
 class ResUnetPlusPlus(nn.Module):
-    def __init__(self, channel, filters=[32, 64, 128, 256, 512]):
+    def __init__(self, channel, filters=[64, 128, 256, 512, 1024]):
         super(ResUnetPlusPlus, self).__init__()
 
         self.input_layer = nn.Sequential(
