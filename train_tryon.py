@@ -194,16 +194,16 @@ class build_resunetplusplus(nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.c1 = Stem_Block(3, 16, stride=1)
-        self.c2 = ResNet_Block(16, 32, stride=2)
-        self.c3 = ResNet_Block(32, 64, stride=2)
-        self.c4 = ResNet_Block(64, 128, stride=2)
+        self.c1 = Stem_Block(36, 36, stride=1)
+        self.c2 = ResNet_Block(36, 72, stride=2)
+        self.c3 = ResNet_Block(72, 144, stride=2)
+        self.c4 = ResNet_Block(144, 288, stride=2)
 
-        self.b1 = ASPP(128, 256)
+        self.b1 = ASPP(288, 576)
 
-        self.d1 = Decoder_Block([64, 256], 128)
-        self.d2 = Decoder_Block([32, 128], 64)
-        self.d3 = Decoder_Block([16, 64], 32)
+        self.d1 = Decoder_Block([288, 576], 288)
+        self.d2 = Decoder_Block([144, 288], 144)
+        self.d3 = Decoder_Block([72, 144], 72)
 
         self.aspp = ASPP(32, 16)
         self.output = nn.Conv2d(16, 1, kernel_size=1, padding=0)
