@@ -1635,9 +1635,9 @@ class build_resunetplusplus(nn.Module):
         self.c3 = ResNet_Block(128, 256, stride=2)
         self.c4 = ResNet_Block(256, 512, stride=2)
 
-        self.b1 = ASPP(512, 1024)
+        self.b1 = ASPP(512, 512)
 
-        self.d1 = Decoder_Block([256, 1024], 512)
+        self.d1 = Decoder_Block([256, 512], 512)
         self.d2 = Decoder_Block([128, 512], 256)
         self.d3 = Decoder_Block([64, 256], 128)
         self.output = nn.Conv2d(128, 4, kernel_size=1)
