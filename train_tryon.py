@@ -1474,7 +1474,6 @@ class ResUnetSkipConnectionBlock(nn.Module):
 
 
 #######ResWalidbardo
-
 class Squeeze_Excitation(nn.Module):
     def __init__(self, channel, r=8):
         super().__init__()
@@ -1631,19 +1630,18 @@ class build_resunetplusplus(nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.c1 = Stem_Block(36, 64, stride=1)
+        self.c1 = Stem_Block(37, 64, stride=1)
         self.c2 = ResNet_Block(64, 128, stride=2)
         self.c3 = ResNet_Block(128, 256, stride=2)
         self.c4 = ResNet_Block(256, 512, stride=2)
 
         self.b1 = ASPP(512, 1024)
 
-        self.d1 = Decoder_Block([512, 1024], 512)
-        self.d2 = Decoder_Block([256, 512], 256)
-        self.d3 = Decoder_Block([128, 256], 128)
-        self.d4 = Decoder_Block([64, 128], 64)
+        self.d1 = Decoder_Block([256, 1024], 512)
+        self.d2 = Decoder_Block([128, 512], 256)
+        self.d3 = Decoder_Block([64, 256], 128)
+        self.output = nn.Conv2d(128, 4, kernel_size=1)
 
-        self.output = nn.Conv2d(64, 4, kernel_size=1)
 
     def forward(self, inputs):
         c1 = self.c1(inputs)
@@ -1652,13 +1650,12 @@ class build_resunetplusplus(nn.Module):
         c4 = self.c4(c3)
 
         b1 = self.b1(c4)
-        
-        d1 = self.d1(c4,b1)
-        d2 = self.d2(c3,d1)
-        d3 = self.d3(c2,d2)
-        d4 = self.d4(c1,d3)
-        
-        output = self.output(d4)
+
+        d1 = self.d1(c3, b1)
+        d2 = self.d2(c2, d1)
+        d3 = self.d3(c1, d2)
+
+        output = self.output(d3)
 
         return output
 
