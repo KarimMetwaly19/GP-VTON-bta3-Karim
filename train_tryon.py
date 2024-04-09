@@ -1632,27 +1632,43 @@ class build_resunetplusplus(nn.Module):
 
         self.c1 = Stem_Block(36, 64, stride=1)
         self.c2 = ResNet_Block(64, 128, stride=2)
-        self.c3 = ResNet_Block(128, 256, stride=2)
+     #k   self.c3 = ResNet_Block(128, 256, stride=2)
         #self.c4 = ResNet_Block(256, 512, stride=2)
 
         self.b1 = ASPP(256, 512)
 
         #self.d1 = Decoder_Block([256, 512], 512)
-        self.d2 = Decoder_Block([128, 512], 256)
+     #k   self.d2 = Decoder_Block([128, 512], 256)
         self.d3 = Decoder_Block([64, 256], 128)
         self.output = nn.Conv2d(128, 4, kernel_size=1)
 
 
+    # def forward(self, inputs):
+    #     c1 = self.c1(inputs)
+    #     c2 = self.c2(c1)
+    #     c3 = self.c3(c2)
+    #     #c4 = self.c4(c3)
+
+    #     b1 = self.b1(c3)
+
+    #     #d1 = self.d1(c3, b1)
+    #     d2 = self.d2(c2, b1)
+    #     d3 = self.d3(c1, d2)
+
+    #     output = self.output(d3)
+
+    #     return output
+#habbooda version
     def forward(self, inputs):
         c1 = self.c1(inputs)
         c2 = self.c2(c1)
-        c3 = self.c3(c2)
+     #k   c3 = self.c3(c2)
         #c4 = self.c4(c3)
 
-        b1 = self.b1(c3)
+     #k   b1 = self.b1(c3)
 
         #d1 = self.d1(c3, b1)
-        d2 = self.d2(c2, b1)
+     #k   d2 = self.d2(c2, b1)
         d3 = self.d3(c1, d2)
 
         output = self.output(d3)
