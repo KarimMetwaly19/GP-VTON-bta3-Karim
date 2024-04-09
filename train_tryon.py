@@ -1636,7 +1636,8 @@ class build_resunetplusplus(nn.Module):
         #self.c4 = ResNet_Block(256, 512, stride=2)
 
        #k self.b1 = ASPP(256, 512)
-	self.b1 = ASPP(128, 256)    
+        self.b1 = ASPP(128, 256)    
+	    
 
         #self.d1 = Decoder_Block([256, 512], 512)
      #k   self.d2 = Decoder_Block([128, 512], 256)
@@ -1663,7 +1664,7 @@ class build_resunetplusplus(nn.Module):
     def forward(self, inputs):
         c1 = self.c1(inputs)
         c2 = self.c2(c1)
-     #k   c3 = self.c3(c2)
+     #k c3 = self.c3(c2)
         #c4 = self.c4(c3)
 
         b1 = self.b1(c2)
