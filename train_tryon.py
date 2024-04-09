@@ -1665,11 +1665,11 @@ class build_resunetplusplus(nn.Module):
      #k   c3 = self.c3(c2)
         #c4 = self.c4(c3)
 
-     #k   b1 = self.b1(c3)
+        b1 = self.b1(c2)
 
         #d1 = self.d1(c3, b1)
      #k   d2 = self.d2(c2, b1)
-        d3 = self.d3(c1, d2)
+        d3 = self.d3(c1, b1)
 
         output = self.output(d3)
 
