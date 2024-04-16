@@ -1645,37 +1645,37 @@ class build_resunetplusplus(nn.Module):
         self.output = nn.Conv2d(128, 4, kernel_size=1)
 
 
-    # def forward(self, inputs):
-    #     c1 = self.c1(inputs)
-    #     c2 = self.c2(c1)
-    #     c3 = self.c3(c2)
-    #     #c4 = self.c4(c3)
-
-    #     b1 = self.b1(c3)
-
-    #     #d1 = self.d1(c3, b1)
-    #     d2 = self.d2(c2, b1)
-    #     d3 = self.d3(c1, d2)
-
-    #     output = self.output(d3)
-
-    #     return output
-#habbooda version
     def forward(self, inputs):
         c1 = self.c1(inputs)
         c2 = self.c2(c1)
-     #k c3 = self.c3(c2)
-        #c4 = self.c4(c3)
+        c3 = self.c3(c2)
+        c4 = self.c4(c3)
 
-        b1 = self.b1(c2)
+        b1 = self.b1(c4)
 
-        #d1 = self.d1(c3, b1)
-     #k   d2 = self.d2(c2, b1)
-        d3 = self.d3(c1, b1)
+        d1 = self.d1(c3, b1)
+        d2 = self.d2(c2, b1)
+        d3 = self.d3(c1, d2)
 
         output = self.output(d3)
 
         return output
+#habbooda version
+    # def forward(self, inputs):
+    #     c1 = self.c1(inputs)
+    #     c2 = self.c2(c1)
+    #  #k c3 = self.c3(c2)
+    #     #c4 = self.c4(c3)
+
+    #     b1 = self.b1(c2)
+
+    #     #d1 = self.d1(c3, b1)
+    #  #k   d2 = self.d2(c2, b1)
+    #     d3 = self.d3(c1, b1)
+
+    #     output = self.output(d3)
+
+    #     return output
 
 # Converts a Tensor into a Numpy array
 # |imtype|: the desired type of the converted numpy array
