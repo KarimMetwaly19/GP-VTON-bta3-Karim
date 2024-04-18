@@ -1636,7 +1636,7 @@ class build_resunetplusplus(nn.Module):
         self.c4 = ResNet_Block(256, 512, stride=2)
 	
        # self.b1 = ASPP(256, 512)
-       self.b1 = ASPP(512, 1024)  
+        self.b1 = ASPP(512, 1024)  
 	 #haboda
 	    
 	#self.b1 = ASPP(512, 1024)
