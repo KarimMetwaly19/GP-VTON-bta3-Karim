@@ -1634,10 +1634,10 @@ class build_resunetplusplus(nn.Module):
         self.c2 = ResNet_Block(64, 128, stride=2)
         self.c3 = ResNet_Block(128, 256, stride=2)
         self.c4 = ResNet_Block(256, 512, stride=2)
-
+	self.b1=ASPP(512,1024)
        # self.b1 = ASPP(256, 512)
        # self.b1 = ASPP(128, 256)  
-	self.b1=ASPP(512,1024) #haboda
+	 #haboda
 	    
 
         self.d1 = Decoder_Block([256, 1024], 512)
