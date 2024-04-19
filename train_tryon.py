@@ -1671,7 +1671,7 @@ class build_resunetplusplus(nn.Module):
 
         #d1 = self.d1(c3, b1)
         d2 = self.d2(c2, b1)
-        d3 = self.d3(c1, b1)
+        d3 = self.d3(c1, d2)
 
         output = self.output(d3)
 
