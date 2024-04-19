@@ -1633,10 +1633,10 @@ class build_resunetplusplus(nn.Module):
         self.c1 = Stem_Block(36, 64, stride=1)
         self.c2 = ResNet_Block(64, 128, stride=2)
         self.c3 = ResNet_Block(128, 256, stride=2)
-        self.c4 = ResNet_Block(256, 512, stride=2)
+      #  self.c4 = ResNet_Block(256, 512, stride=2)
 	
-       # self.b1 = ASPP(256, 512)
-        self.b1 = ASPP(512, 1024)  
+        self.b1 = ASPP(256, 512)
+       # self.b1 = ASPP(512, 1024)  
 	 #haboda
 	    
 	#self.b1 = ASPP(512, 1024)
@@ -1666,7 +1666,7 @@ class build_resunetplusplus(nn.Module):
         c1 = self.c1(inputs)
         c2 = self.c2(c1)
         c3 = self.c3(c2)
-        c4 = self.c4(c3)
+        #c4 = self.c4(c3)
 
         b1 = self.b1(c3)
 
@@ -2646,9 +2646,9 @@ def train_tryon():
                               num_workers=4, pin_memory=True, sampler=train_sampler)
     dataset_size = len(train_loader)
 
-    #gen_model=build_resunetplusplus() #//working
+    gen_model=build_resunetplusplus() #//working
     #gen_model=ResUnetPlusPlus(36) 
-    gen_model = ResUnetGenerator(36, 4, 5, ngf=64, norm_layer=nn.BatchNorm2d)
+    #gen_model = ResUnetGenerator(36, 4, 5, ngf=64, norm_layer=nn.BatchNorm2d)
     gen_model.train()
     gen_model.cuda()
     if opt.PBAFN_gen_checkpoint is not None:
