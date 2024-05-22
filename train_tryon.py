@@ -1643,7 +1643,6 @@ class build_resunetplusplus(nn.Module):
         self.d2 = Decoder_Block([128, 512], 256)
         self.d3 = Decoder_Block([64, 256], 128)
         self.output = nn.Conv2d(128, 4, kernel_size=1)
-
 	self.old_lr = opt.lr
         self.old_lr_gmm = 0.1*opt.lr
 
