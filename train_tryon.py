@@ -1473,7 +1473,7 @@ class ResUnetSkipConnectionBlock(nn.Module):
             return torch.cat([x, self.model(x)], 1)
 
 
-#######ResWalidbardo
+#######ResWalid w karim w Mody
 class Squeeze_Excitation(nn.Module):
     def __init__(self, channel, r=8):
         super().__init__()
@@ -1644,6 +1644,8 @@ class build_resunetplusplus(nn.Module):
         self.d3 = Decoder_Block([64, 256], 128)
         self.output = nn.Conv2d(128, 4, kernel_size=1)
 
+	self.old_lr = opt.lr
+        self.old_lr_gmm = 0.1*opt.lr
 
     # def forward(self, inputs):
     #     c1 = self.c1(inputs)
@@ -2014,7 +2016,7 @@ class TrainOptions(BaseOptions):
         self.parser.add_argument(
             '--phase', type=str, default='train', help='train, val, test, etc')
         self.parser.add_argument(
-            '--niter', type=int, default=1, help='# of iter at starting learning rate')
+            '--niter', type=int, default=0, help='# of iter at starting learning rate')
         self.parser.add_argument('--niter_decay', type=int, default=1,
                                  help='# of iter to linearly decay learning rate to zero')
         self.parser.add_argument(
