@@ -2232,8 +2232,8 @@ class AlignedDataset(BaseDataset):
         self.C_types = []
         for line in lines:
             p_name, c_name, c_type = line.strip().split()
-            P_path = os.path.join(self.root, 'test', 'image', p_name)
-            C_path = os.path.join(self.root, 'test', 'cloth', c_name)
+            P_path = os.path.join(self.root, 'train', 'image', p_name)
+            C_path = os.path.join(self.root, 'train', 'cloth', c_name)
             if self.resolution == 1024:
                 P_path = P_path.replace('.png', '.jpg')
                 C_path = C_path.replace('.png', '.jpg')
