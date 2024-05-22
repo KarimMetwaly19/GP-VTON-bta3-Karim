@@ -2001,13 +2001,13 @@ class TrainOptions(BaseOptions):
         self.parser.add_argument(
             '--phase', type=str, default='train', help='train, val, test, etc')
         self.parser.add_argument(
-            '--niter', type=int, default=0, help='# of iter at starting learning rate')
-        self.parser.add_argument('--niter_decay', type=int, default=1,
+            '--niter', type=int, default=200, help='# of iter at starting learning rate')
+        self.parser.add_argument('--niter_decay', type=int, default=0,
                                  help='# of iter to linearly decay learning rate to zero')
         self.parser.add_argument(
             '--beta1', type=float, default=0.5, help='momentum term of adam')
         self.parser.add_argument(
-            '--lr', type=float, default=0.00005, help='initial learning rate for adam')
+            '--lr', type=float, default=0.0005, help='initial learning rate for adam')
         self.parser.add_argument(
             '--lr_D', type=float, default=0.00005, help='initial learning rate for adam')
         self.parser.add_argument('--pretrain_checkpoint_D', type=str,
@@ -2809,7 +2809,7 @@ def train_tryon():
             save_checkpoint(discriminator.module,
                             os.path.join(opt.checkpoints_dir, opt.name, 'PBAFN_D_epoch_%03d.pth' % (epoch + 1)))
         if epoch > opt.niter:
-            discriminator.module.update_learning_rate(optimizer_D)
+            discriminator.module.update_learning_rate(optimizer_D, opt)
             model_gen.module.update_learning_rate(optimizer_gen)
 
 
