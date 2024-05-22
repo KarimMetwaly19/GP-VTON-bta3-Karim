@@ -275,230 +275,230 @@ from torch.nn.utils.spectral_norm import spectral_norm
 
 
 kernel_Correlation_rearrange = '''
-	extern "C" __global__ void kernel_Correlation_rearrange(
-		const int n,
-		const float* input,
-		float* output
-	) {
-	  int intIndex = (blockIdx.x * blockDim.x) + threadIdx.x;
+    extern "C" __global__ void kernel_Correlation_rearrange(
+        const int n,
+        const float* input,
+        float* output
+    ) {
+      int intIndex = (blockIdx.x * blockDim.x) + threadIdx.x;
 
-	  if (intIndex >= n) {
-	    return;
-	  }
+      if (intIndex >= n) {
+        return;
+      }
 
-	  int intSample = blockIdx.z;
-	  int intChannel = blockIdx.y;
+      int intSample = blockIdx.z;
+      int intChannel = blockIdx.y;
 
-	  float fltValue = input[(((intSample * SIZE_1(input)) + intChannel) * SIZE_2(input) * SIZE_3(input)) + intIndex];
+      float fltValue = input[(((intSample * SIZE_1(input)) + intChannel) * SIZE_2(input) * SIZE_3(input)) + intIndex];
 
-	  __syncthreads();
+      __syncthreads();
 
-	  int intPaddedY = (intIndex / SIZE_3(input)) + 3*{{intStride}};
-	  int intPaddedX = (intIndex % SIZE_3(input)) + 3*{{intStride}};
-	  int intRearrange = ((SIZE_3(input) + 6*{{intStride}}) * intPaddedY) + intPaddedX;
+      int intPaddedY = (intIndex / SIZE_3(input)) + 3*{{intStride}};
+      int intPaddedX = (intIndex % SIZE_3(input)) + 3*{{intStride}};
+      int intRearrange = ((SIZE_3(input) + 6*{{intStride}}) * intPaddedY) + intPaddedX;
 
-	  output[(((intSample * SIZE_1(output) * SIZE_2(output)) + intRearrange) * SIZE_1(input)) + intChannel] = fltValue;
-	}
+      output[(((intSample * SIZE_1(output) * SIZE_2(output)) + intRearrange) * SIZE_1(input)) + intChannel] = fltValue;
+    }
 '''
 
 kernel_Correlation_updateOutput = '''
-	extern "C" __global__ void kernel_Correlation_updateOutput(
-	  const int n,
-	  const float* rbot0,
-	  const float* rbot1,
-	  float* top
-	) {
-	  extern __shared__ char patch_data_char[];
+    extern "C" __global__ void kernel_Correlation_updateOutput(
+      const int n,
+      const float* rbot0,
+      const float* rbot1,
+      float* top
+    ) {
+      extern __shared__ char patch_data_char[];
 
-	  float *patch_data = (float *)patch_data_char;
+      float *patch_data = (float *)patch_data_char;
 
-	  // First (upper left) position of kernel upper-left corner in current center position of neighborhood in image 1
-	  int x1 = (blockIdx.x + 3) * {{intStride}};
-	  int y1 = (blockIdx.y + 3) * {{intStride}};
-	  int item = blockIdx.z;
-	  int ch_off = threadIdx.x;
+      // First (upper left) position of kernel upper-left corner in current center position of neighborhood in image 1
+      int x1 = (blockIdx.x + 3) * {{intStride}};
+      int y1 = (blockIdx.y + 3) * {{intStride}};
+      int item = blockIdx.z;
+      int ch_off = threadIdx.x;
 
-	  // Load 3D patch into shared shared memory
-	  for (int j = 0; j < 1; j++) { // HEIGHT
-	    for (int i = 0; i < 1; i++) { // WIDTH
-	      int ji_off = (j + i) * SIZE_3(rbot0);
-	      for (int ch = ch_off; ch < SIZE_3(rbot0); ch += 32) { // CHANNELS
-	        int idx1 = ((item * SIZE_1(rbot0) + y1+j) * SIZE_2(rbot0) + x1+i) * SIZE_3(rbot0) + ch;
-	        int idxPatchData = ji_off + ch;
-	        patch_data[idxPatchData] = rbot0[idx1];
-	      }
-	    }
-	  }
+      // Load 3D patch into shared shared memory
+      for (int j = 0; j < 1; j++) { // HEIGHT
+        for (int i = 0; i < 1; i++) { // WIDTH
+          int ji_off = (j + i) * SIZE_3(rbot0);
+          for (int ch = ch_off; ch < SIZE_3(rbot0); ch += 32) { // CHANNELS
+            int idx1 = ((item * SIZE_1(rbot0) + y1+j) * SIZE_2(rbot0) + x1+i) * SIZE_3(rbot0) + ch;
+            int idxPatchData = ji_off + ch;
+            patch_data[idxPatchData] = rbot0[idx1];
+          }
+        }
+      }
 
-	  __syncthreads();
+      __syncthreads();
 
-	  __shared__ float sum[32];
+      __shared__ float sum[32];
 
-	  // Compute correlation
-	  for (int top_channel = 0; top_channel < SIZE_1(top); top_channel++) {
-	    sum[ch_off] = 0;
+      // Compute correlation
+      for (int top_channel = 0; top_channel < SIZE_1(top); top_channel++) {
+        sum[ch_off] = 0;
 
-	    int s2o = (top_channel % 7 - 3) * {{intStride}};
-	    int s2p = (top_channel / 7 - 3) * {{intStride}};
+        int s2o = (top_channel % 7 - 3) * {{intStride}};
+        int s2p = (top_channel / 7 - 3) * {{intStride}};
 
-	    for (int j = 0; j < 1; j++) { // HEIGHT
-	      for (int i = 0; i < 1; i++) { // WIDTH
-	        int ji_off = (j + i) * SIZE_3(rbot0);
-	        for (int ch = ch_off; ch < SIZE_3(rbot0); ch += 32) { // CHANNELS
-	          int x2 = x1 + s2o;
-	          int y2 = y1 + s2p;
+        for (int j = 0; j < 1; j++) { // HEIGHT
+          for (int i = 0; i < 1; i++) { // WIDTH
+            int ji_off = (j + i) * SIZE_3(rbot0);
+            for (int ch = ch_off; ch < SIZE_3(rbot0); ch += 32) { // CHANNELS
+              int x2 = x1 + s2o;
+              int y2 = y1 + s2p;
 
-	          int idxPatchData = ji_off + ch;
-	          int idx2 = ((item * SIZE_1(rbot0) + y2+j) * SIZE_2(rbot0) + x2+i) * SIZE_3(rbot0) + ch;
+              int idxPatchData = ji_off + ch;
+              int idx2 = ((item * SIZE_1(rbot0) + y2+j) * SIZE_2(rbot0) + x2+i) * SIZE_3(rbot0) + ch;
 
-	          sum[ch_off] += patch_data[idxPatchData] * rbot1[idx2];
-	        }
-	      }
-	    }
+              sum[ch_off] += patch_data[idxPatchData] * rbot1[idx2];
+            }
+          }
+        }
 
-	    __syncthreads();
+        __syncthreads();
 
-	    if (ch_off == 0) {
-	      float total_sum = 0;
-	      for (int idx = 0; idx < 32; idx++) {
-	        total_sum += sum[idx];
-	      }
-	      const int sumelems = SIZE_3(rbot0);
-	      const int index = ((top_channel*SIZE_2(top) + blockIdx.y)*SIZE_3(top))+blockIdx.x;
-	      top[index + item*SIZE_1(top)*SIZE_2(top)*SIZE_3(top)] = total_sum / (float)sumelems;
-	    }
-	  }
-	}
+        if (ch_off == 0) {
+          float total_sum = 0;
+          for (int idx = 0; idx < 32; idx++) {
+            total_sum += sum[idx];
+          }
+          const int sumelems = SIZE_3(rbot0);
+          const int index = ((top_channel*SIZE_2(top) + blockIdx.y)*SIZE_3(top))+blockIdx.x;
+          top[index + item*SIZE_1(top)*SIZE_2(top)*SIZE_3(top)] = total_sum / (float)sumelems;
+        }
+      }
+    }
 '''
 
 kernel_Correlation_updateGradFirst = '''
-	#define ROUND_OFF 50000
+    #define ROUND_OFF 50000
 
-	extern "C" __global__ void kernel_Correlation_updateGradFirst(
-	  const int n,
-	  const int intSample,
-	  const float* rbot0,
-	  const float* rbot1,
-	  const float* gradOutput,
-	  float* gradFirst,
-	  float* gradSecond
-	) { for (int intIndex = (blockIdx.x * blockDim.x) + threadIdx.x; intIndex < n; intIndex += blockDim.x * gridDim.x) {
-	  int n = intIndex % SIZE_1(gradFirst); // channels
-	  int l = (intIndex / SIZE_1(gradFirst)) % SIZE_3(gradFirst) + 3*{{intStride}}; // w-pos
-	  int m = (intIndex / SIZE_1(gradFirst) / SIZE_3(gradFirst)) % SIZE_2(gradFirst) + 3*{{intStride}}; // h-pos
+    extern "C" __global__ void kernel_Correlation_updateGradFirst(
+      const int n,
+      const int intSample,
+      const float* rbot0,
+      const float* rbot1,
+      const float* gradOutput,
+      float* gradFirst,
+      float* gradSecond
+    ) { for (int intIndex = (blockIdx.x * blockDim.x) + threadIdx.x; intIndex < n; intIndex += blockDim.x * gridDim.x) {
+      int n = intIndex % SIZE_1(gradFirst); // channels
+      int l = (intIndex / SIZE_1(gradFirst)) % SIZE_3(gradFirst) + 3*{{intStride}}; // w-pos
+      int m = (intIndex / SIZE_1(gradFirst) / SIZE_3(gradFirst)) % SIZE_2(gradFirst) + 3*{{intStride}}; // h-pos
 
-	  // round_off is a trick to enable integer division with ceil, even for negative numbers
-	  // We use a large offset, for the inner part not to become negative.
-	  const int round_off = ROUND_OFF;
-	  const int round_off_s1 = {{intStride}} * round_off;
+      // round_off is a trick to enable integer division with ceil, even for negative numbers
+      // We use a large offset, for the inner part not to become negative.
+      const int round_off = ROUND_OFF;
+      const int round_off_s1 = {{intStride}} * round_off;
 
-	  // We add round_off before_s1 the int division and subtract round_off after it, to ensure the formula matches ceil behavior:
-	  int xmin = (l - 3*{{intStride}} + round_off_s1 - 1) / {{intStride}} + 1 - round_off; // ceil (l - 3*{{intStride}}) / {{intStride}}
-	  int ymin = (m - 3*{{intStride}} + round_off_s1 - 1) / {{intStride}} + 1 - round_off; // ceil (l - 3*{{intStride}}) / {{intStride}}
+      // We add round_off before_s1 the int division and subtract round_off after it, to ensure the formula matches ceil behavior:
+      int xmin = (l - 3*{{intStride}} + round_off_s1 - 1) / {{intStride}} + 1 - round_off; // ceil (l - 3*{{intStride}}) / {{intStride}}
+      int ymin = (m - 3*{{intStride}} + round_off_s1 - 1) / {{intStride}} + 1 - round_off; // ceil (l - 3*{{intStride}}) / {{intStride}}
 
-	  // Same here:
-	  int xmax = (l - 3*{{intStride}} + round_off_s1) / {{intStride}} - round_off; // floor (l - 3*{{intStride}}) / {{intStride}}
-	  int ymax = (m - 3*{{intStride}} + round_off_s1) / {{intStride}} - round_off; // floor (m - 3*{{intStride}}) / {{intStride}}
+      // Same here:
+      int xmax = (l - 3*{{intStride}} + round_off_s1) / {{intStride}} - round_off; // floor (l - 3*{{intStride}}) / {{intStride}}
+      int ymax = (m - 3*{{intStride}} + round_off_s1) / {{intStride}} - round_off; // floor (m - 3*{{intStride}}) / {{intStride}}
 
-	  float sum = 0;
-	  if (xmax>=0 && ymax>=0 && (xmin<=SIZE_3(gradOutput)-1) && (ymin<=SIZE_2(gradOutput)-1)) {
-	    xmin = max(0,xmin);
-	    xmax = min(SIZE_3(gradOutput)-1,xmax);
+      float sum = 0;
+      if (xmax>=0 && ymax>=0 && (xmin<=SIZE_3(gradOutput)-1) && (ymin<=SIZE_2(gradOutput)-1)) {
+        xmin = max(0,xmin);
+        xmax = min(SIZE_3(gradOutput)-1,xmax);
 
-	    ymin = max(0,ymin);
-	    ymax = min(SIZE_2(gradOutput)-1,ymax);
+        ymin = max(0,ymin);
+        ymax = min(SIZE_2(gradOutput)-1,ymax);
 
-	    for (int p = -3; p <= 3; p++) {
-	      for (int o = -3; o <= 3; o++) {
-	        // Get rbot1 data:
-	        int s2o = {{intStride}} * o;
-	        int s2p = {{intStride}} * p;
-	        int idxbot1 = ((intSample * SIZE_1(rbot0) + (m+s2p)) * SIZE_2(rbot0) + (l+s2o)) * SIZE_3(rbot0) + n;
-	        float bot1tmp = rbot1[idxbot1]; // rbot1[l+s2o,m+s2p,n]
+        for (int p = -3; p <= 3; p++) {
+          for (int o = -3; o <= 3; o++) {
+            // Get rbot1 data:
+            int s2o = {{intStride}} * o;
+            int s2p = {{intStride}} * p;
+            int idxbot1 = ((intSample * SIZE_1(rbot0) + (m+s2p)) * SIZE_2(rbot0) + (l+s2o)) * SIZE_3(rbot0) + n;
+            float bot1tmp = rbot1[idxbot1]; // rbot1[l+s2o,m+s2p,n]
 
-	        // Index offset for gradOutput in following loops:
-	        int op = (p+3) * 7 + (o+3); // index[o,p]
-	        int idxopoffset = (intSample * SIZE_1(gradOutput) + op);
+            // Index offset for gradOutput in following loops:
+            int op = (p+3) * 7 + (o+3); // index[o,p]
+            int idxopoffset = (intSample * SIZE_1(gradOutput) + op);
 
-	        for (int y = ymin; y <= ymax; y++) {
-	          for (int x = xmin; x <= xmax; x++) {
-	            int idxgradOutput = (idxopoffset * SIZE_2(gradOutput) + y) * SIZE_3(gradOutput) + x; // gradOutput[x,y,o,p]
-	            sum += gradOutput[idxgradOutput] * bot1tmp;
-	          }
-	        }
-	      }
-	    }
-	  }
-	  const int sumelems = SIZE_1(gradFirst);
-	  const int bot0index = ((n * SIZE_2(gradFirst)) + (m-3*{{intStride}})) * SIZE_3(gradFirst) + (l-3*{{intStride}});
-	  gradFirst[bot0index + intSample*SIZE_1(gradFirst)*SIZE_2(gradFirst)*SIZE_3(gradFirst)] = sum / (float)sumelems;
-	} }
+            for (int y = ymin; y <= ymax; y++) {
+              for (int x = xmin; x <= xmax; x++) {
+                int idxgradOutput = (idxopoffset * SIZE_2(gradOutput) + y) * SIZE_3(gradOutput) + x; // gradOutput[x,y,o,p]
+                sum += gradOutput[idxgradOutput] * bot1tmp;
+              }
+            }
+          }
+        }
+      }
+      const int sumelems = SIZE_1(gradFirst);
+      const int bot0index = ((n * SIZE_2(gradFirst)) + (m-3*{{intStride}})) * SIZE_3(gradFirst) + (l-3*{{intStride}});
+      gradFirst[bot0index + intSample*SIZE_1(gradFirst)*SIZE_2(gradFirst)*SIZE_3(gradFirst)] = sum / (float)sumelems;
+    } }
 '''
 
 kernel_Correlation_updateGradSecond = '''
-	#define ROUND_OFF 50000
+    #define ROUND_OFF 50000
 
-	extern "C" __global__ void kernel_Correlation_updateGradSecond(
-	  const int n,
-	  const int intSample,
-	  const float* rbot0,
-	  const float* rbot1,
-	  const float* gradOutput,
-	  float* gradFirst,
-	  float* gradSecond
-	) { for (int intIndex = (blockIdx.x * blockDim.x) + threadIdx.x; intIndex < n; intIndex += blockDim.x * gridDim.x) {
-	  int n = intIndex % SIZE_1(gradSecond); // channels
-	  int l = (intIndex / SIZE_1(gradSecond)) % SIZE_3(gradSecond) + 3*{{intStride}}; // w-pos
-	  int m = (intIndex / SIZE_1(gradSecond) / SIZE_3(gradSecond)) % SIZE_2(gradSecond) + 3*{{intStride}}; // h-pos
+    extern "C" __global__ void kernel_Correlation_updateGradSecond(
+      const int n,
+      const int intSample,
+      const float* rbot0,
+      const float* rbot1,
+      const float* gradOutput,
+      float* gradFirst,
+      float* gradSecond
+    ) { for (int intIndex = (blockIdx.x * blockDim.x) + threadIdx.x; intIndex < n; intIndex += blockDim.x * gridDim.x) {
+      int n = intIndex % SIZE_1(gradSecond); // channels
+      int l = (intIndex / SIZE_1(gradSecond)) % SIZE_3(gradSecond) + 3*{{intStride}}; // w-pos
+      int m = (intIndex / SIZE_1(gradSecond) / SIZE_3(gradSecond)) % SIZE_2(gradSecond) + 3*{{intStride}}; // h-pos
 
-	  // round_off is a trick to enable integer division with ceil, even for negative numbers
-	  // We use a large offset, for the inner part not to become negative.
-	  const int round_off = ROUND_OFF;
-	  const int round_off_s1 = {{intStride}} * round_off;
+      // round_off is a trick to enable integer division with ceil, even for negative numbers
+      // We use a large offset, for the inner part not to become negative.
+      const int round_off = ROUND_OFF;
+      const int round_off_s1 = {{intStride}} * round_off;
 
-	  float sum = 0;
-	  for (int p = -3; p <= 3; p++) {
-	    for (int o = -3; o <= 3; o++) {
-	      int s2o = {{intStride}} * o;
-	      int s2p = {{intStride}} * p;
+      float sum = 0;
+      for (int p = -3; p <= 3; p++) {
+        for (int o = -3; o <= 3; o++) {
+          int s2o = {{intStride}} * o;
+          int s2p = {{intStride}} * p;
 
-	      //Get X,Y ranges and clamp
-	      // We add round_off before_s1 the int division and subtract round_off after it, to ensure the formula matches ceil behavior:
-	      int xmin = (l - 3*{{intStride}} - s2o + round_off_s1 - 1) / {{intStride}} + 1 - round_off; // ceil (l - 3*{{intStride}} - s2o) / {{intStride}}
-	      int ymin = (m - 3*{{intStride}} - s2p + round_off_s1 - 1) / {{intStride}} + 1 - round_off; // ceil (l - 3*{{intStride}} - s2o) / {{intStride}}
+          //Get X,Y ranges and clamp
+          // We add round_off before_s1 the int division and subtract round_off after it, to ensure the formula matches ceil behavior:
+          int xmin = (l - 3*{{intStride}} - s2o + round_off_s1 - 1) / {{intStride}} + 1 - round_off; // ceil (l - 3*{{intStride}} - s2o) / {{intStride}}
+          int ymin = (m - 3*{{intStride}} - s2p + round_off_s1 - 1) / {{intStride}} + 1 - round_off; // ceil (l - 3*{{intStride}} - s2o) / {{intStride}}
 
-	      // Same here:
-	      int xmax = (l - 3*{{intStride}} - s2o + round_off_s1) / {{intStride}} - round_off; // floor (l - 3*{{intStride}} - s2o) / {{intStride}}
-	      int ymax = (m - 3*{{intStride}} - s2p + round_off_s1) / {{intStride}} - round_off; // floor (m - 3*{{intStride}} - s2p) / {{intStride}}
+          // Same here:
+          int xmax = (l - 3*{{intStride}} - s2o + round_off_s1) / {{intStride}} - round_off; // floor (l - 3*{{intStride}} - s2o) / {{intStride}}
+          int ymax = (m - 3*{{intStride}} - s2p + round_off_s1) / {{intStride}} - round_off; // floor (m - 3*{{intStride}} - s2p) / {{intStride}}
 
-	      if (xmax>=0 && ymax>=0 && (xmin<=SIZE_3(gradOutput)-1) && (ymin<=SIZE_2(gradOutput)-1)) {
-	        xmin = max(0,xmin);
-	        xmax = min(SIZE_3(gradOutput)-1,xmax);
+          if (xmax>=0 && ymax>=0 && (xmin<=SIZE_3(gradOutput)-1) && (ymin<=SIZE_2(gradOutput)-1)) {
+            xmin = max(0,xmin);
+            xmax = min(SIZE_3(gradOutput)-1,xmax);
 
-	        ymin = max(0,ymin);
-	        ymax = min(SIZE_2(gradOutput)-1,ymax);
+            ymin = max(0,ymin);
+            ymax = min(SIZE_2(gradOutput)-1,ymax);
 
-	        // Get rbot0 data:
-	        int idxbot0 = ((intSample * SIZE_1(rbot0) + (m-s2p)) * SIZE_2(rbot0) + (l-s2o)) * SIZE_3(rbot0) + n;
-	        float bot0tmp = rbot0[idxbot0]; // rbot1[l+s2o,m+s2p,n]
+            // Get rbot0 data:
+            int idxbot0 = ((intSample * SIZE_1(rbot0) + (m-s2p)) * SIZE_2(rbot0) + (l-s2o)) * SIZE_3(rbot0) + n;
+            float bot0tmp = rbot0[idxbot0]; // rbot1[l+s2o,m+s2p,n]
 
-	        // Index offset for gradOutput in following loops:
-	        int op = (p+3) * 7 + (o+3); // index[o,p]
-	        int idxopoffset = (intSample * SIZE_1(gradOutput) + op);
+            // Index offset for gradOutput in following loops:
+            int op = (p+3) * 7 + (o+3); // index[o,p]
+            int idxopoffset = (intSample * SIZE_1(gradOutput) + op);
 
-	        for (int y = ymin; y <= ymax; y++) {
-	          for (int x = xmin; x <= xmax; x++) {
-	            int idxgradOutput = (idxopoffset * SIZE_2(gradOutput) + y) * SIZE_3(gradOutput) + x; // gradOutput[x,y,o,p]
-	            sum += gradOutput[idxgradOutput] * bot0tmp;
-	          }
-	        }
-	      }
-	    }
-	  }
-	  const int sumelems = SIZE_1(gradSecond);
-	  const int bot1index = ((n * SIZE_2(gradSecond)) + (m-3*{{intStride}})) * SIZE_3(gradSecond) + (l-3*{{intStride}});
-	  gradSecond[bot1index + intSample*SIZE_1(gradSecond)*SIZE_2(gradSecond)*SIZE_3(gradSecond)] = sum / (float)sumelems;
-	} }
+            for (int y = ymin; y <= ymax; y++) {
+              for (int x = xmin; x <= xmax; x++) {
+                int idxgradOutput = (idxopoffset * SIZE_2(gradOutput) + y) * SIZE_3(gradOutput) + x; // gradOutput[x,y,o,p]
+                sum += gradOutput[idxgradOutput] * bot0tmp;
+              }
+            }
+          }
+        }
+      }
+      const int sumelems = SIZE_1(gradSecond);
+      const int bot1index = ((n * SIZE_2(gradSecond)) + (m-3*{{intStride}})) * SIZE_3(gradSecond) + (l-3*{{intStride}});
+      gradSecond[bot1index + intSample*SIZE_1(gradSecond)*SIZE_2(gradSecond)*SIZE_3(gradSecond)] = sum / (float)sumelems;
+    } }
 '''
 
 
@@ -1637,7 +1637,7 @@ class build_resunetplusplus(nn.Module):
 
        #k self.b1 = ASPP(256, 512)
         self.b1 = ASPP(512, 1024)    
-	    
+        
 
         self.d1 = Decoder_Block([256, 1024], 512)
         self.d2 = Decoder_Block([128, 512], 256)
@@ -1645,7 +1645,7 @@ class build_resunetplusplus(nn.Module):
         self.output = nn.Conv2d(128, 4, kernel_size=1)
         self.old_lr = opt.lr
         self.old_lr_gmm = 0.1*opt.lr
-		
+        
 
 # #habbooda version
     def forward(self, inputs):
@@ -1679,7 +1679,7 @@ class build_resunetplusplus(nn.Module):
 
 #        #k self.b1 = ASPP(256, 512)
 #         self.b1 = ASPP(128, 256)    
-	    
+        
 
 #         #self.d1 = Decoder_Block([256, 512], 512)
 #      #k   self.d2 = Decoder_Block([128, 512], 256)
@@ -2364,6 +2364,7 @@ class AlignedDataset(BaseDataset):
 
         # person 2d pose
         pose_path = P_path.replace('/image/', '/openpose_json/')[:-4] + '_keypoints.json'
+        pose_path = pose_path.replace('/kaggle/input/gp-vton-dataset/VITON-HD/VITON-HD/train', '/kaggle/input/openposejson')
         with open(pose_path, 'r') as f:
             datas = json.load(f)
         pose_data = np.array(datas['people'][0]['pose_keypoints_2d']).reshape(-1, 3)
