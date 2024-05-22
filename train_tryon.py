@@ -1928,7 +1928,7 @@ class BaseOptions():
                                  help='number of epochs that we only train the outmost local enhancer')
         self.parser.add_argument('--tv_weight', type=float, default=0.1, help='weight for TV loss')
 
-        self.parser.add_argument('--image_pairs_txt', type=str, default='test_pairs_unpaired_1018.txt')
+        self.parser.add_argument('--image_pairs_txt', type=str, default='train_pairs_1018.txt')
 
         self.initialized = True
 
