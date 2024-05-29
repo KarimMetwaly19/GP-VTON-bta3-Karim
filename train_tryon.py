@@ -2018,7 +2018,7 @@ class TrainOptions(BaseOptions):
                                  help='load the pretrained model from the specified location')
         self.parser.add_argument('--PBAFN_warp_checkpoint', type=str,
                                  help='load the pretrained model from the specified location')
-        self.parser.add_argument('--PBAFN_gen_checkpoint', type=str, default='/kaggle/input/resunet-checkpoints/flow/PBAFN_gen_epoch_078.pth',
+        self.parser.add_argument('--PBAFN_gen_checkpoint', type=str, default='/kaggle/input/resunet-checkpoints/flow/PBAFN_gen_epoch_085.pth',
                                  help='load the pretrained model from the specified location')
 
         self.parser.add_argument('--CPM_checkpoint', type=str)
@@ -2671,7 +2671,7 @@ def train_tryon():
         writer = SummaryWriter(run_path)
         print('#training images = %d' % dataset_size)
 
-    start_epoch, epoch_iter = 78, 0
+    start_epoch, epoch_iter = 85, 0
     total_steps = (start_epoch - 1) * dataset_size + epoch_iter
     step = 0
     step_per_batch = dataset_size
