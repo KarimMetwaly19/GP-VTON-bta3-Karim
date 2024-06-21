@@ -2809,7 +2809,7 @@ def train_tryon():
                             os.path.join(opt.checkpoints_dir, opt.name, 'PBAFN_gen_epoch_%03d.pth' % (epoch + 1)))
             save_checkpoint(discriminator.module,
                             os.path.join(opt.checkpoints_dir, opt.name, 'PBAFN_D_epoch_%03d.pth' % (epoch + 1)))
-        if epoch > opt.niter:
+        if epoch > 100:
             discriminator.module.update_learning_rate(optimizer_D, opt)
             model_gen.module.update_learning_rate(optimizer_gen)
 
