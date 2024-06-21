@@ -2690,10 +2690,10 @@ def train_tryon():
         if epoch != start_epoch:
             epoch_iter = epoch_iter % dataset_size
         train_sampler.set_epoch(epoch)
-        print("Testing Update Learning Rate")
-        if epoch > 100:
-            discriminator.module.update_learning_rate(optimizer_D, opt)
-            model_gen.module.update_learning_rate(optimizer_gen)
+        # print("Testing Update Learning Rate")
+        # if epoch > 100:
+        #     discriminator.module.update_learning_rate(optimizer_D, opt)
+        #     model_gen.module.update_learning_rate(optimizer_gen)
         for ii, data in enumerate(train_loader):
             iter_start_time = time.time()
 
