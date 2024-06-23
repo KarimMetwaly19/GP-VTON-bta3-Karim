@@ -2016,9 +2016,9 @@ class TrainOptions(BaseOptions):
         self.parser.add_argument(
             '--beta1', type=float, default=0.5, help='momentum term of adam')
         self.parser.add_argument(
-            '--lr', type=float, default=0.000430, help='initial learning rate for adam')
+            '--lr', type=float, default=0.000370, help='initial learning rate for adam')
         self.parser.add_argument(
-            '--lr_D', type=float, default=0.000043, help='initial learning rate for adam')
+            '--lr_D', type=float, default=0.000037, help='initial learning rate for adam')
         self.parser.add_argument('--pretrain_checkpoint_D', type=str,
                                  help='load the pretrained model from the specified location')
         self.parser.add_argument('--PFAFN_warp_checkpoint', type=str,
@@ -2027,7 +2027,7 @@ class TrainOptions(BaseOptions):
                                  help='load the pretrained model from the specified location')
         self.parser.add_argument('--PBAFN_warp_checkpoint', type=str,
                                  help='load the pretrained model from the specified location')
-        self.parser.add_argument('--PBAFN_gen_checkpoint', type=str, default='/kaggle/input/resunet-checkpoints/flow/PBAFN_gen_epoch_134.pth',
+        self.parser.add_argument('--PBAFN_gen_checkpoint', type=str, default='/kaggle/input/resunet-checkpoints/flow/PBAFN_gen_epoch_141.pth',
                                  help='load the pretrained model from the specified location')
 
         self.parser.add_argument('--CPM_checkpoint', type=str)
@@ -2680,7 +2680,7 @@ def train_tryon():
         writer = SummaryWriter(run_path)
         print('#training images = %d' % dataset_size)
 
-    start_epoch, epoch_iter = 134, 0
+    start_epoch, epoch_iter = 141, 0
     total_steps = (start_epoch - 1) * dataset_size + epoch_iter
     step = 0
     step_per_batch = dataset_size
