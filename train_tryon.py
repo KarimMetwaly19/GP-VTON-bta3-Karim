@@ -2016,9 +2016,9 @@ class TrainOptions(BaseOptions):
         self.parser.add_argument(
             '--beta1', type=float, default=0.5, help='momentum term of adam')
         self.parser.add_argument(
-            '--lr', type=float, default=0.000370, help='initial learning rate for adam')
+            '--lr', type=float, default=0.000318, help='initial learning rate for adam')
         self.parser.add_argument(
-            '--lr_D', type=float, default=0.000037, help='initial learning rate for adam')
+            '--lr_D', type=float, default=0.000032, help='initial learning rate for adam')
         self.parser.add_argument('--pretrain_checkpoint_D', type=str,
                                  help='load the pretrained model from the specified location')
         self.parser.add_argument('--PFAFN_warp_checkpoint', type=str,
@@ -2027,7 +2027,7 @@ class TrainOptions(BaseOptions):
                                  help='load the pretrained model from the specified location')
         self.parser.add_argument('--PBAFN_warp_checkpoint', type=str,
                                  help='load the pretrained model from the specified location')
-        self.parser.add_argument('--PBAFN_gen_checkpoint', type=str, default='/kaggle/input/resunet-checkpoints/flow/PBAFN_gen_epoch_141.pth',
+        self.parser.add_argument('--PBAFN_gen_checkpoint', type=str, default='/kaggle/input/resunet-checkpoints/flow/PBAFN_gen_epoch_148.pth',
                                  help='load the pretrained model from the specified location')
 
         self.parser.add_argument('--CPM_checkpoint', type=str)
@@ -2680,7 +2680,7 @@ def train_tryon():
         writer = SummaryWriter(run_path)
         print('#training images = %d' % dataset_size)
 
-    start_epoch, epoch_iter = 141, 0
+    start_epoch, epoch_iter = 148, 0
     total_steps = (start_epoch - 1) * dataset_size + epoch_iter
     step = 0
     step_per_batch = dataset_size
@@ -2815,7 +2815,7 @@ def train_tryon():
 
         ### save model for this epoch
         # if epoch % opt.save_epoch_freq == 0:
-        if opt.local_rank  == 0 and epoch%7==0:
+        if opt.local_rank  == 0 and epoch % 150 == 0:
             print('saving the model at the end of epoch %d, iters %d' % (epoch, total_steps))
             save_checkpoint(model_gen.module,
                             os.path.join(opt.checkpoints_dir, opt.name, 'PBAFN_gen_epoch_%03d.pth' % (epoch + 1)))
