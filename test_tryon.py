@@ -9,6 +9,18 @@ from torch.utils.data.distributed import DistributedSampler
 import cv2
 from tqdm import tqdm
 
+modycnt = 1
+
+def show_tryon(i, k):
+    combine = torch.cat([i[0], k[0]], 2).squeeze()
+    cv_img = (combine.permute(1, 2, 0).detach().cpu().numpy() + 1) / 2
+    writer.add_image('combine', (combine.data + 1) / 2.0, step)
+    rgb = (cv_img * 255).astype(np.uint8)
+    bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+    cv2.imwrite('sample/' + opt.name + '/'+ modycnt +  '.jpg', bgr)
+    modycnt = modycnt + 1
+
+
 #######ResWalid w karim w Mody
 class Squeeze_Excitation(nn.Module):
     def __init__(self, channel, r=8):
@@ -273,7 +285,14 @@ for data in tqdm(train_loader):
     m_composite = m_composite * warped_prod_edge
     p_tryon = warped_cloth * m_composite + p_rendered * (1 - m_composite)
     k = p_tryon
+    i = p_rendered
 
+
+
+    show_tryon(i, k)
+
+    
+    
     bz = pose.size(0)
     for bb in range(bz):
         combine = k[bb].squeeze()
