@@ -40,6 +40,7 @@ train_loader = DataLoader(train_data, batch_size=opt.batchSize, shuffle=False,
 gen_model = build_resunetplusplus()
 gen_model.train()
 gen_model.cuda()
+print(opt.PBAFN_gen_checkpoint + 'mody crying')
 load_checkpoint_parallel(gen_model, opt.PBAFN_gen_checkpoint)
 
 gen_model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(gen_model).to(device)
