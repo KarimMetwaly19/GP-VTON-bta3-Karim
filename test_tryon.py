@@ -1,5 +1,6 @@
 from options.train_options import TrainOptions
 from models.networks import ResUnetGenerator, load_checkpoint_parallel
+from train_tryon import build_resunetplusplus, Decoder_Block, Attention_Block, ASPP, ResNet_Block, Stem_Block, Squeeze_Excitation
 import torch.nn as nn
 import os
 import numpy as np
@@ -35,7 +36,8 @@ train_sampler = DistributedSampler(train_data)
 train_loader = DataLoader(train_data, batch_size=opt.batchSize, shuffle=False,
                           num_workers=4, pin_memory=True, sampler=train_sampler)
 
-gen_model = ResUnetGenerator(36, 4, 5, ngf=64, norm_layer=nn.BatchNorm2d)
+# gen_model = ResUnetGenerator(36, 4, 5, ngf=64, norm_layer=nn.BatchNorm2d)
+gen_model = build_resunetplusplus()
 gen_model.train()
 gen_model.cuda()
 load_checkpoint_parallel(gen_model, opt.PBAFN_gen_checkpoint)
