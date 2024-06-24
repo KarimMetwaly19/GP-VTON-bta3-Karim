@@ -21,7 +21,7 @@ class BaseOptions():
         self.parser.add_argument('--nproc_per_node', type=int, default=1, help='nproc_per_node is the number of gpus')
         self.parser.add_argument('--master_port', type=int, default=7129, help='the master port number')
         # input/output sizes       
-        self.parser.add_argument('--batchSize', type=int, default=1, help='input batch size')
+        self.parser.add_argument('--batchSize', type=int, default=2, help='input batch size')
         self.parser.add_argument('--loadSize', type=int, default=512, help='scale images to this size')
         self.parser.add_argument('--fineSize', type=int, default=512, help='then crop to this size')
         self.parser.add_argument('--label_nc', type=int, default=14, help='# of input label channels')
@@ -35,7 +35,7 @@ class BaseOptions():
         self.parser.add_argument('--no_flip', action='store_true', help='if specified, do not flip the images for data argumentation') 
         self.parser.add_argument('--nThreads', default=1, type=int, help='# threads for loading data')                
         self.parser.add_argument('--max_dataset_size', type=int, default=float("inf"), help='Maximum number of samples allowed per dataset. If the dataset directory contains more than max_dataset_size, only a subset is loaded.')
-        self.parser.add_argument('--warproot', type=str, default='/kaggle/input/warping-results')
+        self.parser.add_argument('--warproot', type=str, default='/kaggle/input/all-lfgp-warping-2032')
 
         # for displays
         self.parser.add_argument('--display_winsize', type=int, default=512,  help='display window size')
@@ -51,7 +51,7 @@ class BaseOptions():
         self.parser.add_argument('--niter_fix_global', type=int, default=0, help='number of epochs that we only train the outmost local enhancer')        
         self.parser.add_argument('--tv_weight', type=float, default=0.1, help='weight for TV loss')
 
-        self.parser.add_argument('--image_pairs_txt', type=str, default='/kaggle/input/gp-vton-dataset/VITON-HD/VITON-HD/train_pairs_1018.txt')
+        self.parser.add_argument('--image_pairs_txt', type=str, default='/kaggle/input/modyvton-and-karim/test_pairs.txt')
 
         self.initialized = True
 
