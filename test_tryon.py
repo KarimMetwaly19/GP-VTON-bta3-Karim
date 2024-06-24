@@ -243,7 +243,7 @@ gen_model = build_resunetplusplus()
 # gen_model.train()
 model_gen.eval()
 gen_model.cuda()
-print(opt.PBAFN_gen_checkpoint + 'mody crying')
+print(opt.PBAFN_gen_checkpoint + 'mody&karim crying')
 load_checkpoint_parallel(gen_model, opt.PBAFN_gen_checkpoint)
 
 # gen_model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(gen_model).to(device)
