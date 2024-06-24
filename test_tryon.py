@@ -12,6 +12,7 @@ from tqdm import tqdm
 modycnt = 1
 
 def show_tryon(i, k):
+    global modycnt
     combine = torch.cat([i[0], k[0]], 2).squeeze()
     cv_img = (combine.permute(1, 2, 0).detach().cpu().numpy() + 1) / 2
     rgb = (cv_img * 255).astype(np.uint8)
