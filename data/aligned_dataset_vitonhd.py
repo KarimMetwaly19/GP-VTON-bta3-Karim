@@ -173,7 +173,6 @@ class AlignedDataset(BaseDataset):
         # person 2d pose
         pose_path = P_path.replace('/image/', '/openpose_json/')[:-4]+'_keypoints.json'
         pose_path = pose_path.replace('/kaggle/input/gp-vton-dataset/VITON-HD/VITON-HD/train', '/kaggle/input/openposejson')
-        print('pose_path: ' + pose_path)
         with open(pose_path, 'r') as f:
             datas = json.load(f)
         pose_data = np.array(datas['people'][0]['pose_keypoints_2d']).reshape(-1,3)
