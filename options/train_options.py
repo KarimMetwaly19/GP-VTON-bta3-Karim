@@ -44,13 +44,13 @@ class TrainOptions(BaseOptions):
             '--lr', type=float, default=0.00005, help='initial learning rate for adam')
         self.parser.add_argument(
             '--lr_D', type=float, default=0.00005, help='initial learning rate for adam')
-        self.parser.add_argument('--pretrain_checkpoint_D', type=str, default='/kaggle/input/3-epochs/flow/PBAFN_D_epoch_004.pth',
+        self.parser.add_argument('--pretrain_checkpoint_D', type=str, default='/kaggle/input/resunet-checkpoints/flow/PBAFN_D_epoch_151.pth',
                                  help='load the pretrained model from the specified location')
         self.parser.add_argument('--PFAFN_warp_checkpoint', type=str,
                                  help='load the pretrained model from the specified location')
         self.parser.add_argument('--PFAFN_gen_checkpoint', type=str,
                                  help='load the pretrained model from the specified location')
-        self.parser.add_argument('--PBAFN_warp_checkpoint', type=str, default= '/kaggle/input/3-epochs/flow/PBAFN_warp_epoch_004.pth', 
+        self.parser.add_argument('--PBAFN_warp_checkpoint', type=str, default= '/kaggle/input/resunet-checkpoints/flow/PBAFN_gen_epoch_151.pth', 
                                  help='load the pretrained model from the specified location')
         self.parser.add_argument('--PBAFN_gen_checkpoint', type=str,
                                  help='load the pretrained model from the specified location')
