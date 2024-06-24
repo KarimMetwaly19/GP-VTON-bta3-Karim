@@ -10,9 +10,11 @@ from torch.utils.data.distributed import DistributedSampler
 import cv2
 from tqdm import tqdm
 
+print('flag1')
+
 opt = TrainOptions().parse()
 os.makedirs('sample/'+opt.name,exist_ok=True)
-
+print('flag2')
 def CreateDataset(opt):
     if opt.dataset == 'vitonhd':
         from data.aligned_dataset_vitonhd import AlignedDataset
@@ -30,6 +32,7 @@ torch.distributed.init_process_group(
     init_method='env://'
 )
 device = torch.device(f'cuda:{opt.local_rank}')
+print('flag3')
 
 train_data = CreateDataset(opt)
 train_sampler = DistributedSampler(train_data)
