@@ -241,9 +241,10 @@ train_loader = DataLoader(train_data, batch_size=opt.batchSize, shuffle=False,
 # gen_model = ResUnetGenerator(36, 4, 5, ngf=64, norm_layer=nn.BatchNorm2d)
 gen_model = build_resunetplusplus()
 # gen_model.train()
-model_gen.eval()
+gen_model.eval()
 gen_model.cuda()
-print(opt.PBAFN_gen_checkpoint + 'mody&karim crying')
+
+print(opt.PBAFN_gen_checkpoint + 'mody&karim are very happy')
 load_checkpoint_parallel(gen_model, opt.PBAFN_gen_checkpoint)
 
 # gen_model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(gen_model).to(device)
