@@ -1632,38 +1632,50 @@ class build_resunetplusplus(nn.Module):
 
         self.c1 = Stem_Block(36, 64, stride=1)
         self.c2 = ResNet_Block(64, 128, stride=2)
-        self.c3 = ResNet_Block(128, 256, stride=2)
-        self.c4 = ResNet_Block(256, 512, stride=2)
+     #k   self.c3 = ResNet_Block(128, 256, stride=2)
+        #self.c4 = ResNet_Block(256, 512, stride=2)
 
        #k self.b1 = ASPP(256, 512)
-        self.b1 = ASPP(512, 1024)    
-        
+        self.b1 = ASPP(128, 256)    
+	    
 
-        self.d1 = Decoder_Block([256, 1024], 512)
-        self.d2 = Decoder_Block([128, 512], 256)
+        #self.d1 = Decoder_Block([256, 512], 512)
+     #k   self.d2 = Decoder_Block([128, 512], 256)
         self.d3 = Decoder_Block([64, 256], 128)
         self.output = nn.Conv2d(128, 4, kernel_size=1)
-        self.old_lr = opt.lr
-        self.old_lr_gmm = 0.1*opt.lr
-        
 
-# #habbooda version
+
+    # def forward(self, inputs):
+    #     c1 = self.c1(inputs)
+    #     c2 = self.c2(c1)
+    #     c3 = self.c3(c2)
+    #     #c4 = self.c4(c3)
+
+    #     b1 = self.b1(c3)
+
+    #     #d1 = self.d1(c3, b1)
+    #     d2 = self.d2(c2, b1)
+    #     d3 = self.d3(c1, d2)
+
+    #     output = self.output(d3)
+
+    #     return output
+#habbooda version
     def forward(self, inputs):
         c1 = self.c1(inputs)
         c2 = self.c2(c1)
-        c3 = self.c3(c2)
-        c4 = self.c4(c3)
+     #k c3 = self.c3(c2)
+        #c4 = self.c4(c3)
 
-        b1 = self.b1(c4)
+        b1 = self.b1(c2)
 
-        d1 = self.d1(c3, b1)
-        d2 = self.d2(c2, d1)
-        d3 = self.d3(c1, d2)
+        #d1 = self.d1(c3, b1)
+     #k   d2 = self.d2(c2, b1)
+        d3 = self.d3(c1, b1)
 
         output = self.output(d3)
 
         return output
-
     def update_learning_rate(self, optimizer):
         lrd = opt.lr / opt.niter_decay
         lr = self.old_lr - lrd
@@ -2027,7 +2039,7 @@ class TrainOptions(BaseOptions):
                                  help='load the pretrained model from the specified location')
         self.parser.add_argument('--PBAFN_warp_checkpoint', type=str,
                                  help='load the pretrained model from the specified location')
-        self.parser.add_argument('--PBAFN_gen_checkpoint', type=str, default='/kaggle/input/resunet-checkpoints/flow/PBAFN_gen_epoch_148.pth',
+        self.parser.add_argument('--PBAFN_gen_checkpoint', type=str, default='',
                                  help='load the pretrained model from the specified location')
 
         self.parser.add_argument('--CPM_checkpoint', type=str)
@@ -2680,7 +2692,7 @@ def train_tryon():
         writer = SummaryWriter(run_path)
         print('#training images = %d' % dataset_size)
 
-    start_epoch, epoch_iter = 148, 0
+    start_epoch, epoch_iter = 1, 0
     total_steps = (start_epoch - 1) * dataset_size + epoch_iter
     step = 0
     step_per_batch = dataset_size
