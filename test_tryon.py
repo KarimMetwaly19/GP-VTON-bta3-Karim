@@ -252,8 +252,8 @@ train_loader = DataLoader(train_data, batch_size=opt.batchSize, shuffle=False,
 
 # gen_model = ResUnetGenerator(36, 4, 5, ngf=64, norm_layer=nn.BatchNorm2d)
 gen_model = build_resunetplusplus()
-gen_model.train()
-# gen_model.eval()
+# gen_model.train()
+gen_model.eval()
 gen_model.cuda()
 
 print(opt.PBAFN_gen_checkpoint + 'mody&karim are very happy')
