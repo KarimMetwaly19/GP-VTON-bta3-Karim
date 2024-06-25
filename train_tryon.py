@@ -2629,7 +2629,7 @@ def train_tryon():
                               num_workers=4, pin_memory=True, sampler=train_sampler)
     dataset_size = len(train_loader)
 
-    gen_model=build_resunetplusplus(dropout=0.5) #//working
+    gen_model=build_resunetplusplus() #//working
     #gen_model=ResUnetPlusPlus(36) 
     #gen_model = ResUnetGenerator(36, 4, 5, ngf=64, norm_layer=nn.BatchNorm2d)
     gen_model.train()
