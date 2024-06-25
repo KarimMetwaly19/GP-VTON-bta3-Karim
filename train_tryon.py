@@ -1494,13 +1494,14 @@ class Squeeze_Excitation(nn.Module):
         return x
 
 class Stem_Block(nn.Module):
-    def __init__(self, in_c, out_c, stride):
+    def __init__(self, in_c, out_c, stride, dropout=0.5):
         super().__init__()
 
         self.c1 = nn.Sequential(
             nn.Conv2d(in_c, out_c, kernel_size=3, stride=stride, padding=1),
             nn.BatchNorm2d(out_c),
             nn.ReLU(),
+            nn.Dropout(dropout),
             nn.Conv2d(out_c, out_c, kernel_size=3, padding=1),
         )
 
@@ -1518,7 +1519,7 @@ class Stem_Block(nn.Module):
         return y
 
 class ResNet_Block(nn.Module):
-    def __init__(self, in_c, out_c, stride):
+    def __init__(self, in_c, out_c, stride, dropout=0.5):
         super().__init__()
 
         self.c1 = nn.Sequential(
@@ -1527,6 +1528,7 @@ class ResNet_Block(nn.Module):
             nn.Conv2d(in_c, out_c, kernel_size=3, padding=1, stride=stride),
             nn.BatchNorm2d(out_c),
             nn.ReLU(),
+            nn.Dropout(dropout),
             nn.Conv2d(out_c, out_c, kernel_size=3, padding=1)
         )
 
@@ -1544,31 +1546,38 @@ class ResNet_Block(nn.Module):
         return y
 
 class ASPP(nn.Module):
-    def __init__(self, in_c, out_c, rate=[1, 6, 12, 18]):
+    def __init__(self, in_c, out_c, rate=[1, 6, 12, 18], dropout=0.5):
         super().__init__()
 
         self.c1 = nn.Sequential(
             nn.Conv2d(in_c, out_c, kernel_size=3, dilation=rate[0], padding=rate[0]),
-            nn.BatchNorm2d(out_c)
+            nn.BatchNorm2d(out_c),
+            nn.ReLU(),
+            nn.Dropout(dropout)
         )
 
         self.c2 = nn.Sequential(
             nn.Conv2d(in_c, out_c, kernel_size=3, dilation=rate[1], padding=rate[1]),
-            nn.BatchNorm2d(out_c)
+            nn.BatchNorm2d(out_c),
+            nn.ReLU(),
+            nn.Dropout(dropout)
         )
 
         self.c3 = nn.Sequential(
             nn.Conv2d(in_c, out_c, kernel_size=3, dilation=rate[2], padding=rate[2]),
-            nn.BatchNorm2d(out_c)
+            nn.BatchNorm2d(out_c),
+            nn.ReLU(),
+            nn.Dropout(dropout)
         )
 
         self.c4 = nn.Sequential(
             nn.Conv2d(in_c, out_c, kernel_size=3, dilation=rate[3], padding=rate[3]),
-            nn.BatchNorm2d(out_c)
+            nn.BatchNorm2d(out_c),
+            nn.ReLU(),
+            nn.Dropout(dropout)
         )
 
         self.c5 = nn.Conv2d(out_c, out_c, kernel_size=1, padding=0)
-
 
     def forward(self, inputs):
         x1 = self.c1(inputs)
@@ -1612,12 +1621,12 @@ class Attention_Block(nn.Module):
         return y
 
 class Decoder_Block(nn.Module):
-    def __init__(self, in_c, out_c):
+    def __init__(self, in_c, out_c, dropout=0.5):
         super().__init__()
 
         self.a1 = Attention_Block(in_c)
         self.up = nn.Upsample(scale_factor=2, mode="nearest")
-        self.r1 = ResNet_Block(in_c[0]+in_c[1], out_c, stride=1)
+        self.r1 = ResNet_Block(in_c[0] + in_c[1], out_c, stride=1, dropout=dropout)
 
     def forward(self, g, x):
         d = self.a1(g, x)
@@ -1625,56 +1634,23 @@ class Decoder_Block(nn.Module):
         d = torch.cat([d, g], axis=1)
         d = self.r1(d)
         return d
-#not working but can
+
 class build_resunetplusplus(nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.c1 = Stem_Block(36, 64, stride=1)
-        self.c2 = ResNet_Block(64, 128, stride=2)
-     #k   self.c3 = ResNet_Block(128, 256, stride=2)
-        #self.c4 = ResNet_Block(256, 512, stride=2)
-
-       #k self.b1 = ASPP(256, 512)
-        self.b1 = ASPP(128, 256)    
-	    
-
-        #self.d1 = Decoder_Block([256, 512], 512)
-     #k   self.d2 = Decoder_Block([128, 512], 256)
-        self.d3 = Decoder_Block([64, 256], 128)
+        self.c1 = Stem_Block(36, 64, stride=1, dropout=0.5)
+        self.c2 = ResNet_Block(64, 128, stride=2, dropout=0.5)
+        self.b1 = ASPP(128, 256, dropout=0.5)
+        self.d3 = Decoder_Block([64, 256], 128, dropout=0.5)
         self.output = nn.Conv2d(128, 4, kernel_size=1)
 
-
-    # def forward(self, inputs):
-    #     c1 = self.c1(inputs)
-    #     c2 = self.c2(c1)
-    #     c3 = self.c3(c2)
-    #     #c4 = self.c4(c3)
-
-    #     b1 = self.b1(c3)
-
-    #     #d1 = self.d1(c3, b1)
-    #     d2 = self.d2(c2, b1)
-    #     d3 = self.d3(c1, d2)
-
-    #     output = self.output(d3)
-
-    #     return output
-#habbooda version
     def forward(self, inputs):
         c1 = self.c1(inputs)
         c2 = self.c2(c1)
-     #k c3 = self.c3(c2)
-        #c4 = self.c4(c3)
-
         b1 = self.b1(c2)
-
-        #d1 = self.d1(c3, b1)
-     #k   d2 = self.d2(c2, b1)
         d3 = self.d3(c1, b1)
-
         output = self.output(d3)
-
         return output
     def update_learning_rate(self, optimizer):
         lrd = opt.lr / opt.niter_decay
@@ -2653,7 +2629,7 @@ def train_tryon():
                               num_workers=4, pin_memory=True, sampler=train_sampler)
     dataset_size = len(train_loader)
 
-    gen_model=build_resunetplusplus() #//working
+    gen_model=build_resunetplusplus(dropout=0.5) #//working
     #gen_model=ResUnetPlusPlus(36) 
     #gen_model = ResUnetGenerator(36, 4, 5, ngf=64, norm_layer=nn.BatchNorm2d)
     gen_model.train()
