@@ -2803,7 +2803,7 @@ def train_tryon():
 
         ### save model for this epoch
         # if epoch % opt.save_epoch_freq == 0:
-        if opt.local_rank  == 0 and epoch % 10 == 0:
+        if opt.local_rank  == 0 and epoch % 7 == 0:
             print('saving the model at the end of epoch %d, iters %d' % (epoch, total_steps))
             save_checkpoint(model_gen.module,
                             os.path.join(opt.checkpoints_dir, opt.name, 'PBAFN_gen_epoch_%03d.pth' % (epoch + 1)))
