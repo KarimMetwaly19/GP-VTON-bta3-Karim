@@ -2015,7 +2015,7 @@ class TrainOptions(BaseOptions):
                                  help='load the pretrained model from the specified location')
         self.parser.add_argument('--PBAFN_warp_checkpoint', type=str,
                                  help='load the pretrained model from the specified location')
-        self.parser.add_argument('--PBAFN_gen_checkpoint', type=str, default='PBAFN_gen_epoch_008.pth',
+        self.parser.add_argument('--PBAFN_gen_checkpoint', type=str, default='/kaggle/input/resunet-low-depth-chechkpoints/flow/PBAFN_gen_epoch_008.pth',
                                  help='load the pretrained model from the specified location')
 
         self.parser.add_argument('--CPM_checkpoint', type=str)
