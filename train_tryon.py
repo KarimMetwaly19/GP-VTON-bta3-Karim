@@ -2015,7 +2015,7 @@ class TrainOptions(BaseOptions):
                                  help='load the pretrained model from the specified location')
         self.parser.add_argument('--PBAFN_warp_checkpoint', type=str,
                                  help='load the pretrained model from the specified location')
-        self.parser.add_argument('--PBAFN_gen_checkpoint', type=str, default='',
+        self.parser.add_argument('--PBAFN_gen_checkpoint', type=str, default='PBAFN_gen_epoch_008.pth',
                                  help='load the pretrained model from the specified location')
 
         self.parser.add_argument('--CPM_checkpoint', type=str)
@@ -2668,11 +2668,11 @@ def train_tryon():
         writer = SummaryWriter(run_path)
         print('#training images = %d' % dataset_size)
 
-    start_epoch, epoch_iter = 1, 0
+    start_epoch, epoch_iter = 8, 0
     total_steps = (start_epoch - 1) * dataset_size + epoch_iter
     step = 0
     step_per_batch = dataset_size
-
+    cnter=0
     for epoch in range(start_epoch, opt.niter + opt.niter_decay + 1):
         epoch_start_time = time.time()
         if epoch != start_epoch:
@@ -2800,10 +2800,10 @@ def train_tryon():
         if opt.local_rank == 0:
             print('End of epoch %d / %d \t Time Taken: %d sec' % (
             epoch, opt.niter + opt.niter_decay, time.time() - epoch_start_time))
-
+        cnter=cnter+1
         ### save model for this epoch
         # if epoch % opt.save_epoch_freq == 0:
-        if opt.local_rank  == 0 and epoch % 7 == 0:
+        if opt.local_rank  == 0 and cnter == 11:
             print('saving the model at the end of epoch %d, iters %d' % (epoch, total_steps))
             save_checkpoint(model_gen.module,
                             os.path.join(opt.checkpoints_dir, opt.name, 'PBAFN_gen_epoch_%03d.pth' % (epoch + 1)))
