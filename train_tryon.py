@@ -2015,7 +2015,7 @@ class TrainOptions(BaseOptions):
                                  help='load the pretrained model from the specified location')
         self.parser.add_argument('--PBAFN_warp_checkpoint', type=str,
                                  help='load the pretrained model from the specified location')
-        self.parser.add_argument('--PBAFN_gen_checkpoint', type=str, default='/kaggle/input/resunet-low-depth-chechkpoints/flow/PBAFN_gen_epoch_030.pth',
+        self.parser.add_argument('--PBAFN_gen_checkpoint', type=str, default='/kaggle/input/resunet-low-depth-chechkpoints/flow/PBAFN_gen_epoch_041.pth',
                                  help='load the pretrained model from the specified location')
 
         self.parser.add_argument('--CPM_checkpoint', type=str)
@@ -2668,7 +2668,7 @@ def train_tryon():
         writer = SummaryWriter(run_path)
         print('#training images = %d' % dataset_size)
 
-    start_epoch, epoch_iter = 30, 0
+    start_epoch, epoch_iter = 41, 0
     total_steps = (start_epoch - 1) * dataset_size + epoch_iter
     step = 0
     step_per_batch = dataset_size
@@ -2803,7 +2803,7 @@ def train_tryon():
         cnter=cnter+1
         ### save model for this epoch
         # if epoch % opt.save_epoch_freq == 0:
-        if opt.local_rank  == 0 and cnter == 11:
+        if opt.local_rank  == 0 or cnter == 50:
             print('saving the model at the end of epoch %d, iters %d' % (epoch, total_steps))
             save_checkpoint(model_gen.module,
                             os.path.join(opt.checkpoints_dir, opt.name, 'PBAFN_gen_epoch_%03d.pth' % (epoch + 1)))
