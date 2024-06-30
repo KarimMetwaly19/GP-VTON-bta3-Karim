@@ -15,17 +15,14 @@ def show_tryon2(x, y, z, w):
     global modycnt
     if modycnt == 20:
         return
-    # Assuming x, y, z, w are tensors of shape [2, 1, 512, 384]
-    # We concatenate them along the channel dimension (dimension 1)
-    # If the tensors are not already of shape [2, 1, 512, 384], you may need to reshape them accordingly
-    
     # Concatenate tensors along the channel dimension
     combined = torch.cat([x, y, z, w], dim=1)
     
-    # Assuming the first element of each tensor is the one to visualize,
-    # and the rest are not needed. Adjust if necessary.
-    # Also, squeeze removes dimensions of size 1, which is useful here if the channel dimension is 1.
-    cv_img = (combined.squeeze()[0].permute(1, 2, 0).detach().cpu().numpy() + 1) / 2
+    # Average the channels to get a single RGB image
+    averaged_image = combined.mean(dim=1, keepdim=True)
+    
+    # Assuming the first element of the averaged image is the one to visualize
+    cv_img = (averaged_image.squeeze()[0].permute(1, 2, 0).detach().cpu().numpy() + 1) / 2
     
     # Convert to RGB and scale to [0, 255]
     rgb = (cv_img * 255).astype(np.uint8)
