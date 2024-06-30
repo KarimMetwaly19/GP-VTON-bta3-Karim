@@ -15,8 +15,8 @@ def show_tryon(x, y, z, warped_prod_edge, w, k, i):
     global modycnt
     if modycnt == 20:
         return
-    # [x[0],
-    combine = torch.cat([ y[0], z[0], warped_prod_edge[0], w[0], k[0], i[0]], 2).squeeze()
+    # [x[0],w[0],
+    combine = torch.cat([ y[0], z[0], warped_prod_edge[0], k[0], i[0]], 2).squeeze()
     cv_img = (combine.permute(1, 2, 0).detach().cpu().numpy() + 1) / 2
     rgb = (cv_img * 255).astype(np.uint8)
     bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
