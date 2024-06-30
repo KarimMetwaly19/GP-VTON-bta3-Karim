@@ -15,7 +15,7 @@ modycnt = 1
 # Function to save tensor images
 def save_tensor_images(x,y,z,w):
     if modycnt == 20:
-        break
+        return
     tensors = [x, y, z, w]
     for i, tensor in enumerate(tensors):
         for j in range(2):  # Iterate over the batch size
