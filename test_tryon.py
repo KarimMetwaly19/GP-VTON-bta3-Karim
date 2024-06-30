@@ -15,29 +15,22 @@ def show_tryon2(x, y, z, w):
     global modycnt
     if modycnt == 20:
         return
-    # Assuming x, y, z, w are tensors of shape [2, 1, 512, 384]
-    # Concatenate tensors along the channel dimension
+     # Concatenate tensors along the channel dimension
     combined = torch.cat([x, y, z, w], dim=1)
     
-    # Ensure the tensor has the correct shape for visualization
-    # If the intention is to visualize a single-channel image, ensure it's reshaped correctly
-    # If the intention is to visualize a multi-channel image, ensure the channels are correctly handled
+    # Assuming the first element of each tensor is the one to visualize,
+    # and the rest are not needed. Adjust if necessary.
+    # Also, squeeze removes dimensions of size 1, which is useful here if the channel dimension is 1.
+    cv_img = (combined.squeeze()[0].permute(1, 2, 0).detach().cpu().numpy() + 1) / 2
     
-    # For demonstration, let's assume we want to visualize a single-channel image
-    # We'll take the mean along the channel dimension to create a single-channel image
-    single_channel_image = combined.mean(dim=1, keepdim=False)
+    # Convert to RGB and scale to [0, 255]
+    rgb = (cv_img * 255).astype(np.uint8)
     
-    # Now, if we want to visualize this as an RGB image, we need to duplicate the single channel to create 3 channels
-    rgb_image = single_channel_image.repeat(1, 3, 1, 1)
-    
-    # Convert the tensor to a numpy array, normalize, and convert to uint8
-    cv_img = (rgb_image.squeeze().permute(1, 2, 0).detach().cpu().numpy() + 1) / 2 * 255
-    cv_img = cv_img.astype(np.uint8)
-    
-    # Convert from HWC to BGR
-    bgr = cv2.cvtColor(cv_img, cv2.COLOR_RGB2BGR)
+    # Convert from RGB to BGR (as OpenCV uses BGR format)
+    bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
     
     # Save the image
+    # Make sure the directory 'sample/opt.name/' exists before running this code
     cv2.imwrite(f'sample/{opt.name}/{str(modycnt)}.jpg', bgr)
 
 
@@ -323,7 +316,7 @@ for data in tqdm(train_loader):
 
 
     # show_tryon(x, y, z, warped_prod_edge, w, k, i)
-    show_tryon2(x, y, z, w)
+    show_tryon2(warped_prod_edge, y, z, w)
     
     
     bz = pose.size(0)
