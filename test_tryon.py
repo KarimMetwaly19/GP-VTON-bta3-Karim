@@ -16,14 +16,14 @@ def show_tryon(x, y, z, warped_prod_edge, w, k, i):
     if modycnt == 20:
         return
     # [x[0],w[0],
-    print(x.shape)
-    print(w.shape)
-    print(z.shape)
-    print(warped_prod_edge.shape)
-    print(y.shape)
-    print(k.shape)
-    print(i.shape)
-    combine = torch.cat([k[0], i[0]], 2).squeeze()
+    # print(x.shape)
+    # print(w.shape)
+    # print(z.shape)
+    # print(warped_prod_edge.shape)
+    # print(y.shape)
+    # print(k.shape)
+    # print(i.shape)
+    combine = torch.cat([x[0], k[0], i[0]], 2).squeeze()
     cv_img = (combine.permute(1, 2, 0).detach().cpu().numpy() + 1) / 2
     rgb = (cv_img * 255).astype(np.uint8)
     bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
