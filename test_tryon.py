@@ -11,6 +11,34 @@ from tqdm import tqdm
 
 modycnt = 1
 
+def show_tryon2(x, y, z, w):
+    global modycnt
+    if modycnt == 20:
+        return
+    # Assuming x, y, z, w are tensors of shape [2, 1, 512, 384]
+    # We concatenate them along the channel dimension (dimension 1)
+    # If the tensors are not already of shape [2, 1, 512, 384], you may need to reshape them accordingly
+    
+    # Concatenate tensors along the channel dimension
+    combined = torch.cat([x, y, z, w], dim=1)
+    
+    # Assuming the first element of each tensor is the one to visualize,
+    # and the rest are not needed. Adjust if necessary.
+    # Also, squeeze removes dimensions of size 1, which is useful here if the channel dimension is 1.
+    cv_img = (combined.squeeze()[0].permute(1, 2, 0).detach().cpu().numpy() + 1) / 2
+    
+    # Convert to RGB and scale to [0, 255]
+    rgb = (cv_img * 255).astype(np.uint8)
+    
+    # Convert from RGB to BGR (as OpenCV uses BGR format)
+    bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+    
+    # Save the image
+    # Make sure the directory 'sample/opt.name/' exists before running this code
+    cv2.imwrite(f'sample/{opt.name}/{str(modycnt)}.jpg', bgr)
+
+
+
 def show_tryon(x, y, z, warped_prod_edge, w, k, i):
     global modycnt
     if modycnt == 20:
@@ -291,8 +319,8 @@ for data in tqdm(train_loader):
 
 
 
-    show_tryon(x, y, z, warped_prod_edge, w, k, i)
-
+    # show_tryon(x, y, z, warped_prod_edge, w, k, i)
+    show_tryon2(x, y, z, w)
     
     
     bz = pose.size(0)
