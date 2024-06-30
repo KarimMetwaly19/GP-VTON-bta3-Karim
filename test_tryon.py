@@ -27,7 +27,7 @@ def save_tensor_images(x,y,z,w):
     for i, tensor in enumerate(tensors):
         tensor = tensor.cpu()  # Move tensor to CPU for saving
         for j in range(2):  # Iterate over the batch size
-            img = tensor[j, 0].numpy()  # Remove batch and channel dimension
+            img = tensor[j, 0].detach().numpy()  # Remove batch and channel dimension
             plt.imshow(img, cmap='gray')
             plt.axis('off')
             filename = f'tensor_{i+1}_batch_{j+1}.png'
