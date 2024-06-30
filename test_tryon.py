@@ -14,6 +14,10 @@ modycnt = 1
 
 # Function to save tensor images
 def save_tensor_images(x,y,z,w):
+    print(x.shape)
+    print(w.shape)
+    print(z.shape)
+    print(y.shape)
     global modycnt
     if modycnt == 20:
         return
