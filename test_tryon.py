@@ -11,37 +11,21 @@ from tqdm import tqdm
 
 modycnt = 1
 
-def show_tryon2(x, y, z, w):
-    global modycnt
-    if modycnt >= 20:
-        return
 
-    # Initialize a list to hold the images for each batch item
-    images = []
-
-    # Iterate over the batch dimension
-    for i in range(x.size(0)):
-        # Concatenate tensors along the channel dimension for each batch item
-        combined = torch.cat([x[i], y[i], z[i], w[i]], dim=0)
-        
-        # Assuming the first element of each tensor is the one to visualize,
-        # and the rest are not needed. Adjust if necessary.
-        # Also, squeeze removes dimensions of size 1, which is useful here if the channel dimension is 1.
-        cv_img = (combined.squeeze().permute(1, 2, 0).detach().cpu().numpy() + 1) / 2
-        
-        # Append the processed image to the list
-        images.append(cv_img)
-
-    # Convert the list of images to a numpy array
-    cv_imgs_array = np.stack(images)
-
-    # Directly save the single-channel image without converting to RGB
-    cv2.imwrite(f'sample/{opt.name}/{str(modycnt)}.png', cv_imgs_array[0])
-
-    # Increment the modification counter
+# Function to save tensor images
+def save_tensor_images(x,y,z,w):
+    if modycnt == 20:
+        break
+    tensors = [x, y, z, w]
+    for i, tensor in enumerate(tensors):
+        for j in range(2):  # Iterate over the batch size
+            img = tensor[j, 0].numpy()  # Remove batch and channel dimension
+            plt.imshow(img, cmap='gray')
+            plt.axis('off')
+            filename = f'tensor_{i+1}_batch_{j+1}.png'
+            plt.savefig(filename, bbox_inches='tight', pad_inches=0)
+            plt.close()  # Close the plot to avoid memory issues
     modycnt += 1
-
-
 
 
 def show_tryon(x, y, z, warped_prod_edge, w, k, i):
@@ -325,7 +309,7 @@ for data in tqdm(train_loader):
 
 
     # show_tryon(x, y, z, warped_prod_edge, w, k, i)
-    show_tryon2(warped_prod_edge, y, z, w)
+    save_tensor_images(warped_prod_edge, y, z, w)
     
     
     bz = pose.size(0)
