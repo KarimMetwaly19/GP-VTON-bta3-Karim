@@ -11,9 +11,11 @@ from tqdm import tqdm
 
 modycnt = 1
 
-def show_tryon(i, k):
+def show_tryon(x, y, z, warped_prod_edge, w, k, i):
     global modycnt
-    combine = torch.cat([i[0], k[0]], 2).squeeze()
+    if modycnt == 20:
+        break
+    combine = torch.cat([x[0], y[0], z[0], warped_prod_edge[0], w[0], k[0], i[0]], 2).squeeze()
     cv_img = (combine.permute(1, 2, 0).detach().cpu().numpy() + 1) / 2
     rgb = (cv_img * 255).astype(np.uint8)
     bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
@@ -268,16 +270,20 @@ for data in tqdm(train_loader):
 
     gen_outputs = model_gen(gen_inputs)
     p_rendered, m_composite = torch.split(gen_outputs, [3, 1], 1)
+    x = p_rendered
+    y = m_composite
     p_rendered = torch.tanh(p_rendered)
     m_composite = torch.sigmoid(m_composite)
+    z = m_composite
     m_composite = m_composite * warped_prod_edge
+    w = m_composite
     p_tryon = warped_cloth * m_composite + p_rendered * (1 - m_composite)
     k = p_tryon
     i = p_rendered
 
 
 
-    show_tryon(i, k)
+    show_tryon(x, y, z, warped_prod_edge, w, k, i)
 
     
     
@@ -293,4 +299,4 @@ for data in tqdm(train_loader):
         person_id = data['img_path'][bb].split('/')[-1]
         c_type = data['c_type'][bb]
         save_path = 'sample/'+opt.name+'/'+c_type+'___'+person_id+'___'+cloth_id[:-4]+'.png'
-        cv2.imwrite(save_path, bgr)
+        # cv2.imwrite(save_path, bgr)
