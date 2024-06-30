@@ -13,18 +13,30 @@ modycnt = 1
 
 def show_tryon2(x, y, z, w):
     global modycnt
-    if modycnt == 20:
+    if modycnt >= 20:
         return
-     # Concatenate tensors along the channel dimension
-    combined = torch.cat([x[0], y[0], z[0], w[0]], dim=1)
-    
-    # Assuming the first element of each tensor is the one to visualize,
-    # and the rest are not needed. Adjust if necessary.
-    # Also, squeeze removes dimensions of size 1, which is useful here if the channel dimension is 1.
-    cv_img = (combined.squeeze()[0].permute(1, 2, 0).detach().cpu().numpy() + 1) / 2
-    
+
+    # Initialize a list to hold the images for each batch item
+    images = []
+
+    # Iterate over the batch dimension
+    for i in range(x.size(0)):
+        # Concatenate tensors along the channel dimension for each batch item
+        combined = torch.cat([x[i], y[i], z[i], w[i]], dim=0)
+        
+        # Assuming the first element of each tensor is the one to visualize,
+        # and the rest are not needed. Adjust if necessary.
+        # Also, squeeze removes dimensions of size 1, which is useful here if the channel dimension is 1.
+        cv_img = (combined.squeeze().permute(1, 2, 0).detach().cpu().numpy() + 1) / 2
+        
+        # Append the processed image to the list
+        images.append(cv_img)
+
+    # Convert the list of images to a numpy array
+    cv_imgs_array = np.stack(images)
+
     # Convert to RGB and scale to [0, 255]
-    rgb = (cv_img * 255).astype(np.uint8)
+    rgb = (cv_imgs_array * 255).astype(np.uint8)
     
     # Convert from RGB to BGR (as OpenCV uses BGR format)
     bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
@@ -32,6 +44,10 @@ def show_tryon2(x, y, z, w):
     # Save the image
     # Make sure the directory 'sample/opt.name/' exists before running this code
     cv2.imwrite(f'sample/{opt.name}/{str(modycnt)}.jpg', bgr)
+
+    # Increment the modification counter
+    modycnt += 1
+
 
 
 
