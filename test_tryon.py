@@ -16,7 +16,7 @@ def show_tryon2(x, y, z, w):
     if modycnt == 20:
         return
      # Concatenate tensors along the channel dimension
-    combined = torch.cat([x, y, z, w], dim=1)
+    combined = torch.cat([x[0], y[0], z[0], w[0]], dim=1)
     
     # Assuming the first element of each tensor is the one to visualize,
     # and the rest are not needed. Adjust if necessary.
