@@ -19,14 +19,19 @@ def show_tryon2(x, y, z, w):
     # Concatenate tensors along the channel dimension
     combined = torch.cat([x, y, z, w], dim=1)
     
-    # Average the channels to get a single-channel image
-    averaged_image = combined.mean(dim=1, keepdim=False)
+    # Ensure the tensor has the correct shape for visualization
+    # If the intention is to visualize a single-channel image, ensure it's reshaped correctly
+    # If the intention is to visualize a multi-channel image, ensure the channels are correctly handled
     
-    # Squeeze to remove unnecessary dimensions
-    cv_img = averaged_image.squeeze().permute(1, 2, 0).detach().cpu().numpy()
+    # For demonstration, let's assume we want to visualize a single-channel image
+    # We'll take the mean along the channel dimension to create a single-channel image
+    single_channel_image = combined.mean(dim=1, keepdim=False)
     
-    # Normalize and convert to uint8
-    cv_img = ((cv_img + 1) / 2) * 255
+    # Now, if we want to visualize this as an RGB image, we need to duplicate the single channel to create 3 channels
+    rgb_image = single_channel_image.repeat(1, 3, 1, 1)
+    
+    # Convert the tensor to a numpy array, normalize, and convert to uint8
+    cv_img = (rgb_image.squeeze().permute(1, 2, 0).detach().cpu().numpy() + 1) / 2 * 255
     cv_img = cv_img.astype(np.uint8)
     
     # Convert from HWC to BGR
