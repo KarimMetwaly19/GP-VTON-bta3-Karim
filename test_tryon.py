@@ -8,6 +8,8 @@ from torch.utils.data import DataLoader
 from torch.utils.data.distributed import DistributedSampler
 import cv2
 from tqdm import tqdm
+import matplotlib.pyplot as plt
+
 
 modycnt = 1
 
