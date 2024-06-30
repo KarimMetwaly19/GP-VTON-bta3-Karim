@@ -35,15 +35,8 @@ def show_tryon2(x, y, z, w):
     # Convert the list of images to a numpy array
     cv_imgs_array = np.stack(images)
 
-    # Convert to RGB and scale to [0, 255]
-    rgb = (cv_imgs_array * 255).astype(np.uint8)
-    
-    # Convert from RGB to BGR (as OpenCV uses BGR format)
-    bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
-    
-    # Save the image
-    # Make sure the directory 'sample/opt.name/' exists before running this code
-    cv2.imwrite(f'sample/{opt.name}/{str(modycnt)}.jpg', bgr)
+    # Directly save the single-channel image without converting to RGB
+    cv2.imwrite(f'sample/{opt.name}/{str(modycnt)}.png', cv_imgs_array[0])
 
     # Increment the modification counter
     modycnt += 1
