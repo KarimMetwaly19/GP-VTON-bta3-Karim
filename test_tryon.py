@@ -15,23 +15,24 @@ def show_tryon2(x, y, z, w):
     global modycnt
     if modycnt == 20:
         return
+    # Assuming x, y, z, w are tensors of shape [2, 1, 512, 384]
     # Concatenate tensors along the channel dimension
     combined = torch.cat([x, y, z, w], dim=1)
     
-    # Average the channels to get a single RGB image
-    averaged_image = combined.mean(dim=1, keepdim=True)
+    # Average the channels to get a single-channel image
+    averaged_image = combined.mean(dim=1, keepdim=False)
     
-    # Assuming the first element of the averaged image is the one to visualize
-    cv_img = (averaged_image.squeeze()[0].permute(1, 2, 0).detach().cpu().numpy() + 1) / 2
+    # Squeeze to remove unnecessary dimensions
+    cv_img = averaged_image.squeeze().permute(1, 2, 0).detach().cpu().numpy()
     
-    # Convert to RGB and scale to [0, 255]
-    rgb = (cv_img * 255).astype(np.uint8)
+    # Normalize and convert to uint8
+    cv_img = ((cv_img + 1) / 2) * 255
+    cv_img = cv_img.astype(np.uint8)
     
-    # Convert from RGB to BGR (as OpenCV uses BGR format)
-    bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+    # Convert from HWC to BGR
+    bgr = cv2.cvtColor(cv_img, cv2.COLOR_RGB2BGR)
     
     # Save the image
-    # Make sure the directory 'sample/opt.name/' exists before running this code
     cv2.imwrite(f'sample/{opt.name}/{str(modycnt)}.jpg', bgr)
 
 
